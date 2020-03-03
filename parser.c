@@ -116,7 +116,7 @@ void parse(char *filename, t_map *db)
 			db->dots[i] = (int *)ft_memalloc(sizeof(int) * 4);
 			db->dots[i][0] = x_cnt;
 			db->dots[i][1] = y_cnt;
-			db->dots[i][2] = buf[0];
+			db->dots[i][2] = ft_atoi(buf);
 			x_cnt++;
 			i++;
 		}
@@ -131,8 +131,8 @@ void parse(char *filename, t_map *db)
 int main(int argc, char **argv)
 {
 	t_map *d = (t_map *)malloc(sizeof(t_map));
-
-	parse(argv[1], d);
+	char file[10] = "42.fdf";
+	parse(file, d);
 
 	int i = 0;
 	while(i < d->weidth)
