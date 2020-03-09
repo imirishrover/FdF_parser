@@ -33,5 +33,6 @@ int parse(char *filename, t_map *d);
 void draw_line(float x, float y, float x1, float y1, t_map *db);
 void draw_all(t_map *d);
 void print_manual(t_map *d, int start_x, int start_y, int color);
+void print_left_block(t_map *d, int size_x, int size_y, int color);
 
 #endif

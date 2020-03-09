@@ -16,10 +16,11 @@ int main(int argc, char **argv)
 	if (parse("42.fdf", d))
 	{
         d->mlx_ptr = mlx_init();
-        d->win_ptr = mlx_new_window(d->mlx_ptr, 1000, 1000, "FDF");
+        d->win_ptr = mlx_new_window(d->mlx_ptr, 1920, 1080, "FDF");
 
         //draw_all(d);
-        draw_line(10, 10, 300, 600, d);
+        //draw_line(10, 10, 300, 600, d);
+        print_left_block(d, 400, 600, 0xffffff);
         print_manual(d, 35, 0, 0xffffff);
         mlx_loop(d->mlx_ptr);
         while(i < d->height)
