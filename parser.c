@@ -1,22 +1,9 @@
-# include <unistd.h>
-# include <stdlib.h>
-# include <stddef.h>
-# include <fcntl.h>
-# include <stdarg.h>
-# include <wchar.h>
-# include "libft/libft.h"
-# include <stdio.h>
 
-# define BUFF_SIZE_s 1
+#include "nsance.h"
 
-typedef struct s_map
-{
-	int **dots;
-
-	int weidth;
-	int height;
-}				t_map;
-
+/*
+** Count words in the string divided by 'c'
+*/
 int		ft_wordscounter(char const *str, char c)
 {
 	int i;
@@ -36,109 +23,98 @@ int		ft_wordscounter(char const *str, char c)
 	return (words);
 }
 
-void size_of_map(t_map *db, char *filename)
+/*
+**Writes a line from the file in the array of ints
+*/
+void fill_matrix(t_map *db, char **line_of_z, int i_starts_from, int y)
 {
+	int k = i_starts_from;
+	while(k < (i_starts_from + db->width))
+	{
+		if (!(db->dots[k] = (int *)malloc(sizeof(int) * AMOUNT_OF_PARAMETERS_PER_DOT)))
+			{
+				write(1, "malloc error\n", 13);
+				return;
+			}
+		else
+			{
+				db->dots[k][0] = (k - i_starts_from);
+				db->dots[k][1] = y;
+				db->dots[k][2] = ft_atoi(line_of_z[k - i_starts_from]);
+				free(line_of_z[k - i_starts_from]);
+				k++;
+			}
+	}
+}
+
+int allocate_mem(char *filename, t_map *d)
+{
+	int height;
+	int width;
+	int **n = 0;
+
 	int fd;
 	fd = 0;
-	char *line;
+	char *line = 0;
 
-	fd = open(filename, O_RDONLY, 0);
+	if ((fd = open(filename, O_RDONLY, 0)) <= 0)
+	{
+		write(1, "file not exists", 15);
+		return(0);
+	}
 	get_next_line(fd, &line);
-	db->weidth = ft_wordscounter(line, ' ');
+	if (line && ft_strlen(line))
+		height++;
+	width = ft_wordscounter(line, ' ');
 	free(line);
 	while(get_next_line(fd, &line))
 	{
-		db->height++;
+		height++;
 		free(line);
 	}
+	free(line);
 	close(fd);
+	d->height = height;
+	d->width = width;
+	d->dots = (int **)malloc(sizeof(int *) * (height * width));
+	d->dots[height * width] = 0;
+	return(1);
 }
 
 
-/*
-static int		get_line(const int fd, char **line, char *rest)
+
+int parse(char *filename, t_map *d)
 {
-	char			buf[BUFF_SIZE_s + 1];
-	char			*p_n;
-	char			*tmp;
-	int				rd;
-
-	p_n = NULL;
-	rd = 1;
-	*line = checkrest(&p_n, rest);
-	while (p_n == 0 && ((rd = read(fd, buf, BUFF_SIZE)) != 0))
-	{
-		buf[rd] = '\0';
-		if ((p_n = ft_strchr(buf, '\n')) != NULL)
-		{
-			ft_strcpy(rest, ++p_n);
-			ft_strclr(--p_n);
-		}
-		tmp = *line;
-		if (!(*line = ft_strjoin(tmp, buf)) || rd < 0)
-			return (-1);
-		ft_strdel(&tmp);
-	}
-	return ((ft_strlen(*line) || ft_strlen(rest) || rd) ? 1 : 0);
-}
-
-*/
-
-void parse(char *filename, t_map *db)
-{
-	int fd;
-	int rd;
-	rd = 0;
-	char buf[2];
-	buf [1] = 0;
-
-	char c;
-	c = 0;
-	int i;
-	i = 0;
+	int fd = 0;
+	int cnt = 0;
 	int y_cnt;
 	y_cnt = 0;
-	int x_cnt;
-	x_cnt = 0;
-	int z_cnt;
-	z_cnt = 0;
-
+	char *next_line = 0;
+	char **splitted_line = 0;
+	if (!allocate_mem(filename, d))
+		return(0);
 	fd = open(filename, O_RDONLY, 0);
-	db->dots = (int **)malloc(sizeof(int *) * (db->height * db->weidth));
-	while((rd = read(fd, buf, BUFF_SIZE)) != 0)
+	if (fd < 0)
 	{
-		if (buf[0] == '\n')
+		write(1, "Error opening file\n", 19);
+		return(0);
+	}
+	while(get_next_line(fd, &next_line))
+	{
+		splitted_line = ft_strsplit(next_line, DIVIDE_SYMBOL);
+		fill_matrix(d, splitted_line, cnt, y_cnt);
+		free(next_line);
+		if (splitted_line)
 		{
-			y_cnt++;
+			free(splitted_line);
 		}
-		else
-		{
-			db->dots[i] = (int *)ft_memalloc(sizeof(int) * 4);
-			db->dots[i][0] = x_cnt;
-			db->dots[i][1] = y_cnt;
-			db->dots[i][2] = ft_atoi(buf);
-			x_cnt++;
-			i++;
-		}
+		cnt += d->width;
+		y_cnt++;
 	}
 	close(fd);
+	return(1);
 }
 
 
 
 
-
-int main(int argc, char **argv)
-{
-	t_map *d = (t_map *)malloc(sizeof(t_map));
-	char file[10] = "42.fdf";
-	parse(file, d);
-
-	int i = 0;
-	while(i < d->weidth)
-	{
-		printf("%i %i %i \n", d->dots[i][0], d->dots[i][1], d->dots[i][2]);
-		i++;
-	}
-
-}
